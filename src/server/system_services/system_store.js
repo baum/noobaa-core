@@ -622,6 +622,7 @@ class SystemStore extends EventEmitter {
                     request_params: { since: last_update }
                 });
             }
+            dbg.log0('SystemStore.make_changes: [RPC_DBG] completed load/redisrect standalone:', this.is_standalone);
         }
     }
 

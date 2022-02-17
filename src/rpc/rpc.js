@@ -351,9 +351,9 @@ class RPC extends EventEmitter {
                 req.method_api.validate_reply(req.reply, 'SERVER');
             }
 
-            dbg.log3('RPC._on_request: COMPLETED', req.base_info);
+            dbg.log0('RPC._on_request: [RPC_DBG] COMPLETED', req.base_info);
             await this._send_response(conn, req);
-
+            dbg.log0('RPC._on_request: [RPC_DBG] _send_response COMPLETED', req.base_info, service.api, service.method_api);
         } catch (err) {
             console.error('RPC._on_request: ERROR', req.base_info, err.stack || err);
             // propagate rpc errors from inner rpc client calls (using err.rpc_code)

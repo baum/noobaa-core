@@ -203,10 +203,14 @@ async function create_account(req) {
             auth.role = sys_roles[0];
         }
     });
-    return {
+
+    const reply = {
         token: auth_server.make_auth_token(auth),
         access_keys: decrypted_access_keys
     };
+    dbg.log0('AccountServer.create_account: [RPC_DBG] completed account:', account, "reply", reply);
+
+    return reply;
 }
 
 function create_external_user_account(req) {
