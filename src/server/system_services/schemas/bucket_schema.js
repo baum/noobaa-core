@@ -227,6 +227,12 @@ module.exports = {
         s3_policy: {
             $ref: 'common_api#/definitions/bucket_policy',
         },
+        triggers: {
+            type: 'array',
+            items: {
+                $ref: 'bucket_api#/definitions/trigger'
+            }
+        },
         lambda_triggers: {
             type: 'array',
             items: {

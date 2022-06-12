@@ -165,6 +165,48 @@ interface MirrorStatus {
     redundant_free: BigInt;
 }
 
+/* Example YAML representation
+
+  objectFilter:
+    keyFilters:
+     // match objects with keys that start with "hello"
+     - name: prefix
+       value: hello
+     // match objects with keys that end with ".png"
+     - name: suffix
+       value: .png
+     // match objects with keys with only lowercase characters
+     - name: regex
+       value: "[a-z]*\\.*"
+   tagFilters:
+     - name: project
+       value: brown
+*/
+interface ObjectFilter {
+    keyFilters: Array<{ name: string; value: string; }>;
+    tagFilters: Array<{ key: string; value: string; }>;
+}
+
+/* Trigger Statistics
+ * Gather metrics of all, successfully transmitted and
+ * error sending events notification.
+ */
+interface TriggerStats {
+    all: number;
+    transmited: number;
+    error: number;
+}
+
+/* Bucket event notification trigger */
+interface Trigger extends Base {
+    _id: ID;
+    objectFilter?: ObjectFilter;
+    eventTypes: Array< string >;
+    stats?: TriggerStats;
+    target: string; // the URL of sink
+    type: string; // event notification type such as knative, s3 sns…
+}
+
 interface Bucket extends Base {
     _id: ID;
     deleted?: Date;
@@ -185,6 +227,7 @@ interface Bucket extends Base {
     };
     lifecycle_configuration_rules?: object;
     lambda_triggers?: object;
+    triggers?: Array< Trigger >;
     master_key_id: ID;
 }
 

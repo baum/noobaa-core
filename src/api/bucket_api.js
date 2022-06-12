@@ -645,6 +645,44 @@ module.exports = {
             }
         },
 
+        add_bucket_trigger: {
+            method: 'PUT',
+            params: {
+                type: 'object',
+                required: ['bucket_name', 'trigger'],
+                properties: {
+                    bucket_name: {
+                        $ref: 'common_api#/definitions/bucket_name'
+                    },
+                    trigger: {
+                        $ref: '#/definitions/trigger'
+                    }
+                }
+            },
+            auth: {
+                system: 'admin'
+            }
+        },
+
+        delete_bucket_trigger: {
+            method: 'DELETE',
+            required: ['id', 'bucket_name'],
+            params: {
+                type: 'object',
+                properties: {
+                    id: {
+                        objectid: true
+                    },
+                    bucket_name: {
+                        $ref: 'common_api#/definitions/bucket_name'
+                    },
+                }
+            },
+            auth: {
+                system: 'admin'
+            }
+        },
+
         add_bucket_lambda_trigger: {
             method: 'PUT',
             params: {
@@ -1028,6 +1066,12 @@ module.exports = {
                         $ref: '#/definitions/lambda_trigger_info'
                     }
                 },
+                new_triggers: { // TODO:rename
+                    type: 'array',
+                    items: {
+                        $ref: '#/definitions/trigger'
+                    }
+                },
                 tagging: {
                     $ref: 'common_api#/definitions/tagging'
                 },
@@ -1205,6 +1249,68 @@ module.exports = {
             type: 'string',
         },
 
+        object_key_filter_name: {
+            enum: ['prefix', 'suffix', 'regex'],
+            type: 'string',
+        },
+
+        object_key_filter: {
+            type: 'object',
+            required: [
+                'name',
+                'value'
+            ],
+            properties: {
+                name: {
+                    $ref: '#/definitions/object_key_filter_name'
+                },
+                value: {
+                    type: 'string'
+                },
+            }
+        },
+
+        object_key_filters: {
+            type: 'array',
+            items: {
+                $ref: '#/definitions/object_key_filter'
+            }
+        },
+
+        object_filter: {
+            type: 'object',
+            properties: {
+                key_filters: {
+                    $ref: '#/definitions/object_key_filters'
+                },
+                tag_filters: {
+                    $ref: 'common_api#/definitions/tagging'
+                },
+            }
+        },
+
+        triggger_events: {
+            type: 'array',
+            items: {
+                $ref: 'common_api#/definitions/bucket_trigger_events'
+            }
+        },
+
+        trigger: {
+            type: 'object',
+            required: ['id', 'events'],
+            properties: {
+                id: {
+                    objectid: true
+                },
+                object_filter: {
+                    $ref: '#/definitions/object_filter'
+                },
+                events: {
+                    $ref: '#/definitions/triggger_events'
+                },
+            }
+        },
 
         new_lambda_trigger: {
             type: 'object',
