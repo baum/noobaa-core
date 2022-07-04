@@ -203,8 +203,7 @@ interface Trigger extends Base {
     objectFilter?: ObjectFilter;
     eventTypes: Array< string >;
     stats?: TriggerStats;
-    target: string; // the URL of sink
-    type: string; // event notification type such as knative, s3 sns…
+    topic_id: ID; // notification destination reference
 }
 
 interface Bucket extends Base {
