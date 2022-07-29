@@ -13,7 +13,7 @@ jobs:
   manual-build-and-publish-image:
     runs-on: ubuntu-22.04
     env:
-      PLATFORMS: "linux/arm64"
+      PLATFORMS: "linux/amd64"
       GIT_COMMIT: ${{ github.sha }}
     steps:
       - name: Checkout
