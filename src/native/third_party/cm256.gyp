@@ -6,8 +6,13 @@
         'conditions': [
             [ 'node_arch=="x64"', {
                 'conditions' : [
-                    [ 'OS=="linux"', { 'cflags': ['-msse4.1'] }],
+                    [ 'OS=="linux"', { 'cflags': ['-DUSE_SSE4_1', '-msse4.1'] }],
                     [ 'OS=="mac"', { 'xcode_settings': { 'OTHER_CFLAGS': ['-msse4.1'] } }],
+                ],
+            }],
+            [ 'node_arch=="arm64"', {
+                'conditions' : [
+                    [ 'OS=="linux"', { 'cflags': ['-DUSE_NEON'] }],
                 ],
             }],
         ],
