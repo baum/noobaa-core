@@ -613,13 +613,19 @@ class ObjectSDK {
 
     async upload_object(params) {
         const start_time = Date.now();
+        params.tl.timestamp("enter ObjectSDK.upload_object");
         let reply;
         let error = 0;
         try {
             const ns = await this._get_bucket_namespace(params.bucket);
+            params.tl.timestamp("ObjectSDK.upload_object got ns");
             this._check_is_readonly_namespace(ns);
-            if (params.copy_source) await this.fix_copy_source_params(params, ns);
+            if (params.copy_source) {
+                await this.fix_copy_source_params(params, ns);
+                params.tl.timestamp("ObjectSDK.upload_object copy source")
+            }
             reply = await ns.upload_object(params, this);
+            params.tl.timestamp("ObjectSDK.upload_object ns.upload_object")
         } catch (e) {
             error = 1;
             throw e;
@@ -636,6 +642,7 @@ class ObjectSDK {
             key: params.key,
             content_type: params.content_type
         });
+        params.tl.timestamp("return ObjectSDK.upload_object");
         return reply;
     }
 
