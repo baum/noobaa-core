@@ -385,6 +385,7 @@ class ObjectIO {
 
         params.desc = _.pick(params, 'obj_id', 'num', 'bucket', 'key');
         dbg.log0('UPLOAD:', params.desc, 'streaming to', params.bucket, params.key);
+        params.tl.timestamp("enter ObjectIO._upload_stream_internal");
 
         // start and seq are set to zero even for multiparts and will be fixed
         // when multiparts are combined to object in complete_object_upload
@@ -402,6 +403,7 @@ class ObjectIO {
             calc_md5: true,
             calc_sha256: Boolean(params.sha256_b64),
             chunk_split_config: params.chunk_split_config,
+            timeline: params.tl,
         });
         splitter.on('error', err1 => dbg.error('object_io._upload_stream_internal: error occured on stream Splitter: ', err1));
 
@@ -411,6 +413,7 @@ class ObjectIO {
             concurrency: 20,
             coder: 'enc',
             chunk_coder_config: params.chunk_coder_config,
+            timeline: params.tl,
             // TODO: Load the key from KMS as well
             cipher_key_b64: params.encryption && params.encryption.key_b64
         });
@@ -420,6 +423,7 @@ class ObjectIO {
             objectMode: true,
             max_length: 50,
             max_wait_ms: 1000,
+            timeline: params.tl,
         });
         coalescer.on('error', err1 => dbg.error('object_io._upload_stream_internal: error occured on stream Coalescer: ', err1));
 
@@ -430,7 +434,10 @@ class ObjectIO {
             allowHalfOpen: false,
             highWaterMark: 4,
             transform: (chunks, encoding, callback) =>
-                this._upload_chunks(params, complete_params, chunks, callback)
+                {
+                    this._upload_chunks(params, complete_params, chunks, callback);
+                    //params.tl.timestamp("uploader Transformed");
+                }
         });
         uploader.on('error', err1 => dbg.error('object_io._upload_stream_internal: error occured on stream Uploader: ', err1));
 
@@ -443,6 +450,7 @@ class ObjectIO {
 
         await stream_utils.pipeline(transforms);
         await stream_utils.wait_finished(uploader);
+        params.tl.timestamp("uploader finished");
 
         complete_params.md5_b64 = splitter.md5.toString('base64');
         if (splitter.sha256) complete_params.sha256_b64 = splitter.sha256.toString('base64');

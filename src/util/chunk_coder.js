@@ -17,12 +17,14 @@ const nb_native = require('./nb_native');
  */
 class ChunkCoder extends stream.Transform {
 
-    constructor({ watermark, concurrency, coder, chunk_coder_config, cipher_key_b64 }) {
+    constructor({ watermark, concurrency, coder, chunk_coder_config, timeline, cipher_key_b64 }) {
         super({
             objectMode: true,
             allowHalfOpen: false,
             highWaterMark: watermark,
         });
+        timeline.timestamp("ChunkCoder ctor");
+        this.timeline = timeline;
         this.coder = coder;
         this.cipher_key_b64 = cipher_key_b64;
         this.chunk_coder_config = chunk_coder_config;
@@ -54,6 +56,7 @@ class ChunkCoder extends stream.Transform {
                 const chunk_promise = P.fromCallback(cb => nb_native().chunk_coder(this.coder, chunk, cb));
                 // TODO: Need to remove the cipher_key in case of SSE-C
                 this.stream_promise = Promise.all([chunk_promise, this.stream_promise]).then(() => this.push(chunk));
+                //this.timeline.timestamp("ChunkCoder transformed");
                 callback();
                 return chunk_promise;
             }))
@@ -62,8 +65,10 @@ class ChunkCoder extends stream.Transform {
 
     // consume all the semaphore to wait for running transforms to complete
     _flush(callback) {
-        this.stream_promise.then(() => callback())
-            .catch(err => this.emit('error', err));
+        this.stream_promise.then(() => {
+            this.timeline.timestamp("ChunkCoder flushed");
+            callback()
+        }).catch(err => this.emit('error', err));
     }
 }
 
