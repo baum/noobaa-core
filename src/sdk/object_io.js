@@ -470,6 +470,7 @@ class ObjectIO {
      */
     async _upload_chunks(params, complete_params, chunks, callback) {
         try {
+            params.tl.timestamp("ObjectIO _upload_chunks enter");
             const is_using_encryption = params.encryption || (params.copy_source && params.copy_source.encryption);
             params.range = {
                 start: params.start,
@@ -507,15 +508,18 @@ class ObjectIO {
                 dbg.log0('UPLOAD: part', part.start, chunk);
                 return chunk;
             });
+            params.tl.timestamp("ObjectIO _upload_chunks chunks mapped");
             const mc = new MapClient({
                 chunks: map_chunks,
                 location_info: params.location_info,
                 check_dups: !is_using_encryption,
                 rpc_client: params.client,
                 desc: params.desc,
+                tl: params.tl,
                 report_error: (block_md, action, err) => this._report_error_on_object_upload(params, block_md, action, err),
             });
             await mc.run();
+            params.tl.timestamp("ObjectIO _upload_chunks MapClient run complete");
             if (mc.had_errors) throw new Error('Upload map errors');
             if (params.upload_chunks_hook) params.upload_chunks_hook(params.range.end - params.range.start);
             return callback();
